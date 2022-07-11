@@ -87,7 +87,7 @@ namespace JetScape.Background
             _movement.ResetSpeed();
         }
 
-        public void update()
+        public void Update()
         {
             UpdateFlags();
             if (IsVisible())
@@ -116,8 +116,8 @@ namespace JetScape.Background
             if (IsVisible())
             {
                 _boxSprite.EntrySet()
-                        .Where(box -> _boxVisible.TryGetValue(box.GetKey(), out defaultValue))
-                        .ForEach(box -> _drawMgr.DrawSprite(g,
+                        .Where(box => _boxVisible.TryGetValue(box.GetKey(), out defaultValue))
+                        .ForEach(box => _drawMgr.DrawSprite(g,
                                 box.GetValue() ?? BackgroundDrawer.PlaceholderKey,
                                 Calculate(box.GetKey()),
                                 GameWindow.GameScreen.GetHeight(),
@@ -148,10 +148,10 @@ namespace JetScape.Background
             switch (box)
             {
                 case Left:
-                    newPos = (_position.getX() - ScreenWidth, _position.getY());
+                    newPos = (_position.GetX() - ScreenWidth, _position.GetY());
                     break;
                 case Right:
-                    newPos = (_position.getX() + ScreenWidth, _position.getY());
+                    newPos = (_position.GetX() + ScreenWidth, _position.GetY());
                     break;
                 default:
                     newPos = _position.Copy();
@@ -202,10 +202,9 @@ namespace JetScape.Background
                     +  " - Y:" + Math.Round(Calculate(BoxPos.Right).GetY()) + "]";
         }
 
-            private enum BoxPos
-            {
-                LEFT, CENTRAL, RIGHT;
-            }
+        private enum BoxPos
+        {
+            Left, Central, Right;
         }
     }
 }
