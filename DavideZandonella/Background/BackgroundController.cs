@@ -1,25 +1,25 @@
 // Not implemented
 using Graphics2D;
 
-import java.awt.Color;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+using System.Drawing;
+using System.Collections.Generic;
 
 // Not implemented here
+/*
 using game.frame.GameWindow;
 using game.logics.interactions.SpeedHandler;
 using game.utility.debug.Debugger;
+*/
 
 namespace JetScape.Background
 {
     public class BackgroundController : Background
     {
 
-        private static readonly string SpritePath = "background" + System.getProperty("file.separator");
+        private static readonly string SpritePath = "background" + (string) Path.DirectorySeparatorChar;
 
-        private static readonly Color PlaceHolder = Color.getHSBColor((float) 0.666, (float) 0.333, (float) 0.141);
+		// The Java version has a grey / dark blue handmade color difficult to reproduce
+        private static readonly Color PlaceHolder = Color.Grey;
 
         private const readonly string KeySprite1 = "background1";
 
@@ -53,19 +53,19 @@ namespace JetScape.Background
             _drawMgr.AddSprite(KeySprite2, SpritePath + "background_2.png");
 
             _boxVisible = new Dictionary<BoxPos, bool>() {
-                {BoxPos.LEFT, false},
-                {BoxPos.CENTRAL, true},
-                {BoxPos.RIGHT, false}
+                {BoxPos.Left, false},
+                {BoxPos.Central, true},
+                {BoxPos.Right, false}
             };
             _boxSprite = new Dictionary<BoxPos, string?>(3);
 
-		    foreach (BoxPos pos in BoxPos.GetValues())
+		    foreach (BoxPos pos in BoxPos.Values())
             {
                 _boxSprite.Add(pos, null));
             }
 
-            _boxSprite.Add(BoxPos.CENTRAL, KeySprite1?);
-            _boxSprite.Add(BoxPos.RIGHT, KeySprite1?);
+            _boxSprite.Add(BoxPos.Central, KeySprite1?);
+            _boxSprite.Add(BoxPos.Right, KeySprite1?);
 
             SetVisibility(true);
         }
@@ -87,107 +87,125 @@ namespace JetScape.Background
             _movement.ResetSpeed();
         }
 
-        public void update() {
-            UpdateFlags();
-            if (IsVisible()) {
-            if (this.toBeGenerated) {
-                this.boxSprite.put(BoxPos.RIGHT,
-                        rand.nextDouble() > BackgroundController.LADDER_GENERATION
-                        ? Optional.of(BackgroundController.KEY_SPRITE1)
-                        : Optional.of(BackgroundController.KEY_SPRITE2));
-            }
-            if (this.toBeShifted) {
-                this.shiftBox();
-                this.toBeShifted = false;
-            }
-            if (this.position.getX() > -SCREEN_WIDTH * 2) {
-                this.position.setX(this.position.getX() - this.movement.getXSpeed() / GameWindow.FPS_LIMIT);
-            }
-        }
-    }
-
-    public void draw(final Graphics2D g) {
-        if (this.isVisible()) {
-            this.boxSprite.entrySet().stream()
-                    .filter(box -> this.boxVisible.get(box.getKey()))
-                    .forEach(box -> this.drawMgr.drawSprite(g,
-                            box.getValue().orElse(BackgroundDrawer.PLACEHOLDER_KEY),
-                            this.calculate(box.getKey()),
-                            GameWindow.GAME_SCREEN.getHeight(),
-                            GameWindow.GAME_SCREEN.getWidth()));
-        }
-    }
-
-    private void shiftBox() {
-
-        this.boxVisible.putAll(new HashMap<>(Map.of(
-                BoxPos.LEFT, true,
-                BoxPos.CENTRAL, true,
-                BoxPos.RIGHT, false)));
-
-        this.boxSprite.put(BoxPos.LEFT, this.boxSprite.get(BoxPos.CENTRAL));
-        this.boxSprite.put(BoxPos.CENTRAL, this.boxSprite.get(BoxPos.RIGHT));
-
-        final Pair<Double, Double> temp = this.calculate(BoxPos.RIGHT);
-        this.position.set(temp.getX(), temp.getY());
-    }
-
-    private Pair<Double, Double> calculate(final BoxPos box) {
-        final Pair<Double, Double> newPos;
-        switch (box) {
-            case LEFT:
-                newPos = new Pair<>(this.position.getX() - SCREEN_WIDTH, this.position.getY());
-                break;
-            case RIGHT:
-                newPos = new Pair<>(this.position.getX() + SCREEN_WIDTH, this.position.getY());
-                break;
-            default:
-                //newPos = new Pair<>(this.position);
-                newPos = this.position.copy();
-                break;
-        }
-        return newPos;
-    }
-
-    public void drawCoordinates(final Graphics2D g) {
-        final int xShift = (int) Math.round(position.getX())
-                + (int) Math.round(GameWindow.GAME_SCREEN.getTileSize() * 0.88);
-        final int yShiftDrawnX = (int) Math.round(position.getY())
-                + GameWindow.GAME_SCREEN.getTileSize();
-        final int yShiftDrawnY = yShiftDrawnX + 10;
-
-        if (GameWindow.GAME_DEBUGGER.isFeatureEnabled(Debugger.Option.BACKGROUND_COORDINATES) && this.isVisible()) {
-            g.setColor(Debugger.DEBUG_COLOR);
-            g.setFont(Debugger.DEBUG_FONT);
-
-            g.drawString("X:" + Math.round(position.getX()), xShift, yShiftDrawnX);
-            g.drawString("Y:" + Math.round(position.getY()), xShift, yShiftDrawnY);
-        }
-    }
-
-    private void updateFlags() {
-        if (position.getX() <= 0) {
-            toBeGenerated = true;
-            toBeShifted = true;
-        } else {
-            toBeGenerated = false;
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "Background"
-                + "[L: X:" + Math.round(this.calculate(BoxPos.LEFT).getX())
-                +  " - Y:" + Math.round(this.calculate(BoxPos.LEFT).getY()) + "]\n" + "           "
-                + "[C: X:" + Math.round(position.getX())
-                +  " - Y:" + Math.round(position.getY()) + "]\n" + "           "
-                + "[R: X:" + Math.round(this.calculate(BoxPos.RIGHT).getX())
-                +  " - Y:" + Math.round(this.calculate(BoxPos.RIGHT).getY()) + "]";
-    }
-
-        private enum BoxPos
+        public void update()
         {
-            LEFT, CENTRAL, RIGHT;
+            UpdateFlags();
+            if (IsVisible())
+            {
+                if (_toBeGenerated)
+                {
+                    _boxSprite.Add(BoxPos.Right,
+                            rand.NextDouble() > LadderGeneration ? KeySprite1 : KeySprite2);
+                }
+                if (_toBeShifted)
+                {
+                    ShiftBox();
+                    _toBeShifted = false;
+                }
+                if (_position.GetX() > -ScreenWidth * 2)
+                {
+                    _position.SetX(_position.GetX() - _movement.GetXSpeed() / GameWindow.FpsLimit);
+                }
+            }
+        }
+
+        public void Draw(Graphics2D g)
+        {
+            bool defaultValue;
+
+            if (IsVisible())
+            {
+                _boxSprite.EntrySet()
+                        .Where(box -> _boxVisible.TryGetValue(box.GetKey(), out defaultValue))
+                        .ForEach(box -> _drawMgr.DrawSprite(g,
+                                box.GetValue() ?? BackgroundDrawer.PlaceholderKey,
+                                Calculate(box.GetKey()),
+                                GameWindow.GameScreen.GetHeight(),
+                                GameWindow.GameScreen.GetWidth()));
+            }
+        }
+
+        private void ShiftBox() {
+
+			string? defaultValue;
+
+            _boxVisible.Clear();
+
+            _boxVisible.Add(BoxPos.Left, true);
+            _boxVisible.Add(BoxPos.Central, true);
+            _boxVisible.Add(BoxPos.Right, false);
+
+            _boxSprite.Add(BoxPos.Left, _boxSprite.TryGetValue(BoxPos.Central, out defaultValue));
+            _boxSprite.Add(BoxPos.Central, _boxSprite.TryGetValue(BoxPos.Right, out defaultValue));
+
+            var temp = Calculate(BoxPos.Right);
+            _position.Set(temp);
+        }
+
+        private (double, double) Calculate(BoxPos box)
+        {
+            (double, double) newPos;
+            switch (box)
+            {
+                case Left:
+                    newPos = (_position.getX() - ScreenWidth, _position.getY());
+                    break;
+                case Right:
+                    newPos = (_position.getX() + ScreenWidth, _position.getY());
+                    break;
+                default:
+                    newPos = _position.Copy();
+                    break;
+            }
+            return newPos;
+        }
+
+        public void DrawCoordinates(Graphics2D g)
+        {
+            int xShift = (int) Math.Round(_position.GetX())
+                    + (int) Math.Round(GameWindow.GameScreen.GetTileSize() * 0.88);
+            int yShiftDrawnX = (int) Math.Round(_position.GetY())
+                    + GameWindow.GameScreen.GetTileSize();
+            int yShiftDrawnY = yShiftDrawnX + 10;
+
+            if (GameWindow.GameDebugger.IsFeatureEnabled(Debugger.Option.BackgroundCoordinates) && IsVisible())
+            {
+                g.SetColor(Debugger.DebugColor);
+                g.SetFont(Debugger.DebugFont);
+
+                g.DrawString("X:" + Math.Round(_position.GetX()), xShift, yShiftDrawnX);
+                g.DrawString("Y:" + Math.Round(_position.GetY()), xShift, yShiftDrawnY);
+            }
+        }
+
+        private void UpdateFlags()
+        {
+            if (_position.GetX() <= 0)
+            {
+                _toBeGenerated = true;
+                _toBeShifted = true;
+            }
+            else
+            {
+                _toBeGenerated = false;
+            }
+        }
+
+        public override string ToString()
+        {
+            return "Background"
+                    + "[L: X:" + Math.Round(Calculate(BoxPos.Left).GetX())
+                    +  " - Y:" + Math.Round(Calculate(BoxPos.Left).GetY()) + "]\n" + "           "
+                    + "[C: X:" + Math.Round(_position.getX())
+                    +  " - Y:" + Math.Round(_position.getY()) + "]\n" + "           "
+                    + "[R: X:" + Math.Round(Calculate(BoxPos.Right).GetX())
+                    +  " - Y:" + Math.Round(Calculate(BoxPos.Right).GetY()) + "]";
+        }
+
+            private enum BoxPos
+            {
+                LEFT, CENTRAL, RIGHT;
+            }
         }
     }
 }
