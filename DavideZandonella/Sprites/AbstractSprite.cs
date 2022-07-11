@@ -13,7 +13,7 @@ namespace JetScape.Sprites
 {
     public abstract class AbstractSprite : Sprite
     {
-        private static const char Separator = Path.DirectorySeparatorChar;
+        private static const string Separator = (string) Path.DirectorySeparatorChar;
 
         // Not implemented: System.getProperty("user.dir")
         private static const string DefaultSpriteDirectory = System.getProperty("user.dir")
